@@ -2,7 +2,7 @@ const { Model, Schema } = require('mongoose');
 const Sauces = require('../models/Sauce');
 
 exports.createSauce = (req, res, next) => {
-    console.log(req.body.sauce);
+    console.log(req.body);
     const sauceObject = JSON.parse(req.body.sauce);
     delete sauceObject._id;
     const sauce = new Sauces({
@@ -15,16 +15,33 @@ exports.createSauce = (req, res, next) => {
   };
 
   exports.feedBackSauce = (req, res, next) => { 
-  console.log(req.body);
-  console.log(req.body.userId);
-    const userId = req.body.userId; 
+  console.log(req.body)
+
+  // Clique sur l'un des pouces
+  //envoi requête POST qui contient le userId et le like à 1 ou -1
+  // Si likes =1 ou -1, mettre à jour la sauce de la base de donnée 
+  // avec like qui passe de 0 à 1
+  // Mettre le userId de cette sauce dans le tableau usersLiked / userDisliked.
+
+
+  //Sauces.find({usersLiked:req.body.userId})
+ /* let test = new Sauces(
+  {
+    likes : req.body.likes,
+  })
+  test.save()*/
+  Sauces.updateOne({ userId: req.body.userId }, { ...req.body, userId: req.body.userId })
+  .then(() => res.status(200).json({ message: 'Objet modifié !'}))
+  .catch(error => res.status(400).json({ error }));
 
   };
 
 
 exports.getAllSauce = (req, res, next) => { // fonction qui est appelé à une requête de l'appli // api/stuff = l'url qui est visé par l'appli front end, un tableau
+ 
  console.log(Sauces.find());
-  Sauces.find() //Lit dans la base les sauces    // methode find mise à dispo par le modèle
+
+ Sauces.find() //Lit dans la base les sauces    // methode find mise à dispo par le modèle
     
   .then(sauces => res.status(200).json(sauces)) // récupère le tableau de tous les sauces (then => sauces)??? et renoyer en réponse le tableau reçu depuis la base de donnée
   .catch(error => res.status(400).json({ error }));
