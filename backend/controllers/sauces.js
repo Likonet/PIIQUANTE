@@ -17,10 +17,13 @@ exports.createSauce = (req, res, next) => {
   exports.feedBackSauce = async (req, res, next) => { 
   try {
   const idSauce =  await Sauces.findOne ({ _id: req.params.id }); // pourquoi await?
-  
+  console.log(req.body)
+  console.log("likes:"+idSauce.likes)
   switch (req.body.like)
     {
     case 1:
+      // est ce que like à une valeur > 0  si oui like et usersId gardent leurs valeurs
+      // si non mettre à jour like et usersliked
       const filter = { 
         likes: idSauce.likes + 1,
         usersLiked: [...idSauce.usersLiked, req.body.userId]
@@ -32,11 +35,42 @@ exports.createSauce = (req, res, next) => {
     case -1:
      const filter2 = {
       dislikes: idSauce.dislikes + 1,
-      usersDisliked: [...idSauce.usersDisliked, req.body.userId]
+        usersDisliked: [...idSauce.usersDisliked, req.body.userId]
      }
      console.log(filter2)
    const downLike = await idSauce.update(filter2);
    break;
+
+   case 0:
+     //2 cas :j'annule mon like ou mon dislike
+     // est ce que like = 1 ? si oui mettre à jour à 0
+     const numberOfLike = idSauce.likes
+     //const statutLike = numberOfLike = 1 ? await idSauce.updateMany({ $pull: { usersLiked: { $in: [ idSauce.userId ] } } }) : await idSauce.updateMany({ $pull: { usersDisliked: { $in: [ idSauce.userId ] } } }) 
+     console.log(numberOfLike)
+     console.log("numberOfLike")
+
+     //if(numberOfLike= 1)
+     //{
+       switch(numberOfLike)
+
+       {
+         case 1: 
+      await idSauce.update({ $inc: {likes:-1}, $pull: { usersLiked: idSauce.userId }  }) 
+      //const update0 = await idSauce.update({ $inc: {likes:-1}, $pull: { usersLiked: idSauce.userId }  })
+       break;
+
+       default : await idSauce.update({ $inc: {dislikes:-1}, $pull: { usersDisliked: idSauce.userId }  })
+       }
+     /*
+     else
+     {
+      console.log("cas2")
+      //const update1 = await idSauce.update({ $inc: { dislikes:-1 } ,$pull: { usersDisiked: idSauce.userId }  })
+     }
+     //statutLike = 1? 
+     //retirer le userid de la sauce du tableau
+     //idSauce.updateMany({ $pull: { usersLiked: { $in: [ idSauce.userId ] } } })
+   break;*/
    default:
     }   
   }
